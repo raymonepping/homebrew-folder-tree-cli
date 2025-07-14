@@ -27,9 +27,6 @@ if [[ -z "${BASE_DIR:-}" ]]; then
 fi
 
 LIB_DIR="$BASE_DIR/lib"
-TPL_DIR="$BASE_DIR/tpl"
-
-# Robust sourcing
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 search_paths=(
   "$LIB_DIR/folder_tree_utils.sh"
@@ -40,6 +37,30 @@ search_paths=(
 for path in "${search_paths[@]}"; do
   [[ -f "$path" ]] && source "$path" && break
 done
+
+LIB_DIR="$BASE_DIR/lib"
+
+# Dynamically locate tpl/ folder (same strategy as LIB_DIR)
+possible_tpl_dirs=(
+  "$BASE_DIR/tpl"
+  "$SCRIPT_DIR/../tpl"
+  "$SCRIPT_DIR/tpl"
+  "/opt/homebrew/share/folder-tree-cli/tpl"
+  "/opt/homebrew/opt/folder-tree-cli/share/folder-tree-cli/tpl"
+)
+
+for tdir in "${possible_tpl_dirs[@]}"; do
+  if [[ -d "$tdir" ]]; then
+    TPL_DIR="$tdir"
+    break
+  fi
+done
+
+if [[ ! -d "$TPL_DIR" ]]; then
+  log_err "❌ Could not locate any tpl/ directory in: ${possible_tpl_dirs[*]}"
+  exit 1
+fi
+
 
 # Default presets
 TARGET_DIR="."
@@ -105,6 +126,32 @@ log_target() { [[ "$QUIET" == false ]] && echo -e "${color_blue}${icon_target} $
 log_excl() { [[ "$QUIET" == false ]] && echo -e "${color_yellow}${icon_excl} $*${color_reset}"; }
 log_preset() { [[ "$QUIET" == false ]] && echo -e "${color_bold}${icon_preset} $*${color_reset}"; }
 log_hidden() { [[ "$QUIET" == false ]] && echo -e "${color_yellow}${icon_hidden} $*${color_reset}"; }
+
+# Fallback to interactive decision tree if no args
+if [[ "$#" -eq 0 ]]; then
+  decision_paths=(
+    "$LIB_DIR/folder_decision_tree.sh"
+    "$SCRIPT_DIR/../lib/folder_decision_tree.sh"
+    "$SCRIPT_DIR/lib/folder_decision_tree.sh"
+    "/opt/homebrew/share/folder-tree-cli/lib/folder_decision_tree.sh"
+  )
+  found_tree_wizard=false
+  for dp in "${decision_paths[@]}"; do
+    if [[ -f "$dp" ]]; then
+      source "$dp"
+      run_decision_tree
+      found_tree_wizard=true
+      break
+    fi
+  done
+
+  if [[ "$found_tree_wizard" == false ]]; then
+    log_err "❌ Could not locate folder_decision_tree.sh in: ${decision_paths[*]}"
+    exit 1
+  fi
+
+  exit 0
+fi
 
 # Ensure tree is available
 if ! command -v tree &>/dev/null; then
@@ -346,7 +393,12 @@ if [[ "$OUTPUT_MODE" == "markdown" ]]; then
   fi
 
   # Load the main template (should NOT have badges/titles, just glue header/tree/footer)
-  TPL_PATH="$(find_template 'folder_tree_md.tpl' "$SCRIPT_DIR")"
+  # TPL_PATH="$(find_template 'folder_tree_md.tpl' "$SCRIPT_DIR")"
+  TPL_PATH="$(find_section_file 'folder_tree_md.tpl')"
+  if [[ ! -f "$TPL_PATH" ]]; then
+  log_err "❌ Could not find folder_tree_md.tpl in expected tpl paths."
+  exit 1
+fi
   TPL="$(cat "$TPL_PATH")"
 
   # Replace inside header/footer before injecting
