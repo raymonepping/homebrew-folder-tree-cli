@@ -1,48 +1,69 @@
-# folder_tree_cli 🌳
+# folder_tree 🌳
 
-> “Structure isn’t boring – it’s your first line of clarity.” — folder_tree manifesto
+> "Structure isn't boring – it's your first line of clarity." — *You (probably during a cleanup)*
 
-[![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew&style=flat-square)](https://github.com/raymonepping/folder_tree_cli)
-[![output](https://img.shields.io/badge/markdown--docs-auto--generated-blue?style=flat-square)](./FOLDER_TREE.md)
-[![badge](https://img.shields.io/badge/tree--mode-decision🌿-critical?logo=github&style=flat-square)](https://medium.com/continuous-insights/automating-project-structure-insights-with-folder-tree-ed18f683d7b0)
+[![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew)](https://github.com/raymonepping/homebrew-folder_tree)
+[![version](https://img.shields.io/badge/version-1.6.1-blue)](https://github.com/raymonepping/homebrew-folder_tree)
 
 ---
 
 ## 🧭 What Is This?
-folder_tree_cli is a Homebrew-installable, wizard-powered CLI that lets you explore and document any folder tree. It’s especially useful for:
 
-DevOps projects
+folder_tree is a Homebrew-installable, wizard-powered CLI that lets you explore and document any folder tree. It’s especially useful for:
 
-Scaffolding reviews
-
-GitHub PRs and CI/CD pipelines
+- DevOps projects
+- Scaffolding reviews
+- GitHub PRs and CI/CD pipelines
 
 ---
 
 ## 🚀 Quickstart
 
+```bash
 brew tap raymonepping/folder-tree-cli
-brew install raymonepping/folder-tree-cli/folder-tree-cli
+brew install raymonepping/folder-tree-cli/folder_tree
 folder_tree
+```
 
---- 
+---
 
-## Want to customize?
+Want to customize?
 
+```bash
 export FOLDER_TREE_HOME=/opt/homebrew/opt/folder-tree-cli/share/folder-tree-cli
+```
 
---- 
+---
 
-## 📂 Structure
-python
+## 📂 Project Structure
 
 ```
-.
-├── bin/                      # CLI entrypoint (folder_tree)
-├── lib/                      # Reusable Bash logic
-├── tpl/                      # Templates for Markdown rendering
-├── folder_tree_cli.rb        # Homebrew formula
-└── .brewinfo                 # Optional brew metadata
+./
+├── bin/
+│   ├── CHANGELOG_folder_tree.md
+│   └── folder_tree*
+├── Formula/
+│   └── folder-tree-cli.rb
+├── lib/
+│   ├── folder_decision_tree.sh*
+│   ├── folder_tree_utils.sh*
+│   └── self_doc.sh*
+├── tpl/
+│   ├── folder_tree_md.tpl
+│   ├── readme_article.tpl
+│   ├── readme_body.tpl
+│   ├── readme_footer.tpl
+│   ├── readme_header.tpl
+│   ├── readme_project.tpl
+│   ├── readme_quote.tpl
+│   ├── readme_structure.tpl
+│   ├── report_footer.tpl
+│   └── report_header.tpl
+├── LICENSE
+├── README.md
+└── update_formula.sh*
+
+5 directories, 19 files
 ```
 
 ---
@@ -57,48 +78,56 @@ python
 - 🧩 Fully templated and extendable
 - 🧪 Example Scenarios
 
---- 
+---
 
 ### Auto-generate folder tree in Markdown
+```bash
 folder_tree
+```
 
 ### Use flags (skip wizard)
+```bash
 folder_tree --output markdown --hidden
+```
 
 ### Git mode: only tracked files
+```bash
 folder_tree --git
+```
 
-### a preset (e.g. Terraform or Vue)
+### A preset (e.g. Terraform or Vue)
+```bash
 folder_tree --preset terraform --output markdown
+```
 
 ---
 
-## ✨ Combine with
-generate_project.sh → create clean structure
+### ✨ Combine with
 
-sanity_check.sh → validate .gitignore / .dockerignore
-
-folder_tree → auto-document structure
-
-commit_gh.sh → push with clarity
+- `generate_project.sh` → create clean structure  
+- `sanity_check.sh` → validate .gitignore / .dockerignore  
+- `folder_tree` → auto-document structure  
+- `commit_gh.sh` → push with clarity  
 
 ---
 
-# 🧠 Philosophy
+## 🧠 Philosophy
+
 folder_tree isn’t just about pretty ASCII diagrams. It’s about:
 
 - 📸 Creating repeatable snapshots of your project
 - 🔎 Reducing ambiguity in large repo reviews
 - 🧘 Cleaning up before pushing to prod
 
---- 
-
-> “Clarity isn’t optional. It’s just been too manual — until now.”
-
-📖 [Read the Full Medium Article](https://medium.com/continuous-insights/automating-project-structure-insights-with-folder-tree-ed18f683d7b0)  
+> "Clarity isn’t optional. It’s just been too manual — until now."
 
 ---
 
-© 2025 Raymon Epping
+## 📘 Read the Full Medium.com article
 
+📖 [Article](https://medium.com/continuous-insights/automating-project-structure-insights-with-folder-tree-ed18f683d7b0) 
+
+---
+
+© 2025 Raymon Epping  
 🧠 Powered by folder_tree.sh — 🌐 Works locally, CI/CD, and via Brew

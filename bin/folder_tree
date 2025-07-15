@@ -9,7 +9,8 @@ enable_strict_mode() {
   set -o errtrace
 }
 
-VERSION="1.6.0"
+# shellcheck disable=SC2034
+VERSION="1.6.1"
 
 # Homebrew/dev/lib path lookup
 if [[ -n "${FOLDER_TREE_HOME:-}" && -d "$FOLDER_TREE_HOME/lib" ]]; then
@@ -61,7 +62,6 @@ if [[ ! -d "$TPL_DIR" ]]; then
   exit 1
 fi
 
-
 # Default presets
 TARGET_DIR="."
 EXCLUDES=()
@@ -73,7 +73,6 @@ HISTORY_MODE=false
 HIDDEN=false
 SHOW_VERSION=false
 VERBOSE=false
-QUIET=false
 HINT_FILE="$HOME/.broot_hint_seen"
 GROUP_EXT=""
 
@@ -102,30 +101,39 @@ print_usage() {
   echo "Usage: folder_tree [options] [target_directory]"
   echo ""
   echo "Options:"
-  echo "  --preset <types>       Comma-separated: node,nuxt,all,..."
+# echo "  --preset <types>       Comma-separated: node,nuxt,all,..."
   echo "  --config <file>        Load exclude patterns (default: ~/.treeignore)"
   echo "  --output markdown      Output Markdown-style list"
   echo "  --output broot         Output Broot-style list"
   echo "  --output git           Show Git-tracked files as Markdown list"
+  echo ""
+  echo "  --compute              Show file/folder sizes in output"
   echo "  --hidden               Show hidden files and folders (dotfiles)"
   echo "  --no-color             Disable colored output"
   echo "  --version              Print script version"
-  echo "  --list-presets         Show all available preset types"
+# echo "  --list-presets         Show all available preset types"
   echo "  --history              Append to FOLDER_TREE.md instead of overwriting"
+  echo ""
   echo "  --verbose              Enable verbose output"
-  echo "  --quiet                Suppress output"
+  echo ""
   echo "  -h, --help             Show help"
+  echo ""
+  echo "Examples:"
+  echo "  folder_tree --preset node,nuxt --output markdown ."
+  echo "  folder_tree --output git ./myproject"
+  echo "  folder_tree --preset all --compute --output markdown --history"
+  echo "  folder_tree --preset python --hidden --output broot"
   exit 0
 }
 
-log_info() { [[ "$QUIET" == false ]] && echo -e "${color_info}${icon_info} $*${color_reset}"; }
-log_ok() { [[ "$QUIET" == false ]] && echo -e "${color_green}${icon_ok} $*${color_reset}"; }
-log_warn() { [[ "$QUIET" == false ]] && echo -e "${color_yellow}${icon_warn} $*${color_reset}"; }
-log_err() { echo -e "${color_red}${icon_err} $*${color_reset}" >&2; }
-log_target() { [[ "$QUIET" == false ]] && echo -e "${color_blue}${icon_target} $*${color_reset}"; }
-log_excl() { [[ "$QUIET" == false ]] && echo -e "${color_yellow}${icon_excl} $*${color_reset}"; }
-log_preset() { [[ "$QUIET" == false ]] && echo -e "${color_bold}${icon_preset} $*${color_reset}"; }
-log_hidden() { [[ "$QUIET" == false ]] && echo -e "${color_yellow}${icon_hidden} $*${color_reset}"; }
+log_info()   { echo -e "${color_info}${icon_info} $*${color_reset}"; }
+log_ok()     { echo -e "${color_green}${icon_ok} $*${color_reset}"; }
+log_warn()   { echo -e "${color_yellow}${icon_warn} $*${color_reset}"; }
+log_err()    { echo -e "${color_red}${icon_err} $*${color_reset}" >&2; }  
+log_target() { echo -e "${color_blue}${icon_target} $*${color_reset}"; }
+log_excl()   { echo -e "${color_yellow}${icon_excl} $*${color_reset}"; }
+log_preset() { echo -e "${color_bold}${icon_preset} $*${color_reset}"; }
+log_hidden() { echo -e "${color_yellow}${icon_hidden} $*${color_reset}"; }
 
 # Fallback to interactive decision tree if no args
 if [[ "$#" -eq 0 ]]; then
@@ -196,10 +204,6 @@ while [[ $# -gt 0 ]]; do
     ;;
   --verbose)
     VERBOSE=true
-    shift
-    ;;
-  --quiet)
-    QUIET=true
     shift
     ;;
   --list-presets)
@@ -395,10 +399,7 @@ if [[ "$OUTPUT_MODE" == "markdown" ]]; then
   # Load the main template (should NOT have badges/titles, just glue header/tree/footer)
   # TPL_PATH="$(find_template 'folder_tree_md.tpl' "$SCRIPT_DIR")"
   TPL_PATH="$(find_section_file 'folder_tree_md.tpl')"
-  if [[ ! -f "$TPL_PATH" ]]; then
-  log_err "❌ Could not find folder_tree_md.tpl in expected tpl paths."
-  exit 1
-fi
+  
   TPL="$(cat "$TPL_PATH")"
 
   # Replace inside header/footer before injecting
@@ -431,11 +432,11 @@ fi
   OUTPUT_FILE="$(pwd)/FOLDER_TREE.md"
   echo "$TPL" >"$OUTPUT_FILE"
 
-  if [[ "$QUIET" == false ]]; then
-    if [[ -n "$IS_EMPTY" ]]; then
-      log_warn "Nothing to show. All contents excluded or directory is empty."
-    fi
-    # Print relative path
+  if [[ -n "$IS_EMPTY" ]]; then
+    log_warn "Nothing to show. All contents excluded or directory is empty."
+  fi
+  # Print relative path, but only if running in a terminal
+  if [[ -t 1 ]]; then
     if command -v realpath &>/dev/null && realpath --help 2>&1 | grep -q -- '--relative-to'; then
       REL_PATH=$(realpath --relative-to="." "$OUTPUT_FILE")
     elif command -v python3 &>/dev/null; then
@@ -448,9 +449,11 @@ fi
   exit 0
 fi
 
-if [[ -z "$CLEAN_TREE" ]]; then
-  log_warn "Nothing to show. All contents excluded or directory is empty."
+# Markdown output mode (handled earlier)
+if [[ "$OUTPUT_MODE" == "markdown" ]]; then
+  # (your markdown logic, already above, includes exit 0)
   exit 0
-else
-  echo "$TREE_OUTPUT"
 fi
+
+# Default: pretty banners + tree
+echo "$TREE_OUTPUT"
