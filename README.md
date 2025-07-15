@@ -3,7 +3,7 @@
 > "Structure isn't boring – it's your first line of clarity." — *You (probably during a cleanup)*
 
 [![brew install](https://img.shields.io/badge/brew--install-success-green?logo=homebrew)](https://github.com/raymonepping/homebrew-folder_tree)
-[![version](https://img.shields.io/badge/version-1.6.1-blue)](https://github.com/raymonepping/homebrew-folder_tree)
+[![version](https://img.shields.io/badge/version-1.0.4-blue)](https://github.com/raymonepping/homebrew-folder_tree)
 
 ---
 
@@ -61,9 +61,10 @@ export FOLDER_TREE_HOME=/opt/homebrew/opt/folder-tree-cli/share/folder-tree-cli
 │   └── report_header.tpl
 ├── LICENSE
 ├── README.md
-└── update_formula.sh*
+├── update_formula.sh*
+└── v1.0.4.tar.gz
 
-5 directories, 19 files
+5 directories, 20 files
 ```
 
 ---
