@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034
+VERSION="1.0.19"
+
 run_decision_tree() {
   tput bold; echo "🌳 Folder Tree CLI"; tput sgr0
   echo "📂 Target folder: $(pwd)"
