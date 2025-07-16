@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2034
+VERSION="1.0.16"
+
 # --- COLORS & ICONS ---
 color_reset=$'\e[0m'
 color_green=$'\e[32m'
