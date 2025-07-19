@@ -101,7 +101,7 @@ print_usage() {
   echo "Usage: folder_tree [options] [target_directory]"
   echo ""
   echo "Options:"
-# echo "  --preset <types>       Comma-separated: node,nuxt,all,..."
+  # echo "  --preset <types>       Comma-separated: node,nuxt,all,..."
   echo "  --config <file>        Load exclude patterns (default: ~/.treeignore)"
   echo "  --output markdown      Output Markdown-style list"
   echo "  --output broot         Output Broot-style list"
@@ -111,7 +111,7 @@ print_usage() {
   echo "  --hidden               Show hidden files and folders (dotfiles)"
   echo "  --no-color             Disable colored output"
   echo "  --version              Print script version"
-# echo "  --list-presets         Show all available preset types"
+  # echo "  --list-presets         Show all available preset types"
   echo "  --history              Append to FOLDER_TREE.md instead of overwriting"
   echo ""
   echo "  --verbose              Enable verbose output"
@@ -126,12 +126,12 @@ print_usage() {
   exit 0
 }
 
-log_info()   { echo -e "${color_info}${icon_info} $*${color_reset}"; }
-log_ok()     { echo -e "${color_green}${icon_ok} $*${color_reset}"; }
-log_warn()   { echo -e "${color_yellow}${icon_warn} $*${color_reset}"; }
-log_err()    { echo -e "${color_red}${icon_err} $*${color_reset}" >&2; }  
+log_info() { echo -e "${color_info}${icon_info} $*${color_reset}"; }
+log_ok() { echo -e "${color_green}${icon_ok} $*${color_reset}"; }
+log_warn() { echo -e "${color_yellow}${icon_warn} $*${color_reset}"; }
+log_err() { echo -e "${color_red}${icon_err} $*${color_reset}" >&2; }
 log_target() { echo -e "${color_blue}${icon_target} $*${color_reset}"; }
-log_excl()   { echo -e "${color_yellow}${icon_excl} $*${color_reset}"; }
+log_excl() { echo -e "${color_yellow}${icon_excl} $*${color_reset}"; }
 log_preset() { echo -e "${color_bold}${icon_preset} $*${color_reset}"; }
 log_hidden() { echo -e "${color_yellow}${icon_hidden} $*${color_reset}"; }
 
@@ -398,8 +398,22 @@ if [[ "$OUTPUT_MODE" == "markdown" ]]; then
 
   # Load the main template (should NOT have badges/titles, just glue header/tree/footer)
   # TPL_PATH="$(find_template 'folder_tree_md.tpl' "$SCRIPT_DIR")"
-  TPL_PATH="$(find_section_file 'folder_tree_md.tpl')"
-  
+  find_template() {
+    local name="$1"
+    for base in "${possible_tpl_dirs[@]}"; do
+      local candidate="$base/$name"
+      [[ -f "$candidate" ]] && echo "$candidate" && return
+    done
+    return 1
+  }
+
+  TPL_PATH="$(find_template 'folder_tree_md.tpl')"
+
+  if [[ -z "${TPL_PATH:-}" || ! -f "$TPL_PATH" ]]; then
+    log_err "❌ Template file not found. Tried resolving 'folder_tree_md.tpl' in: ${possible_tpl_dirs[*]}"
+    exit 1
+  fi
+
   TPL="$(cat "$TPL_PATH")"
 
   # Replace inside header/footer before injecting
@@ -412,7 +426,7 @@ if [[ "$OUTPUT_MODE" == "markdown" ]]; then
   TPL="${TPL//\{\{ header \}\}/$HEADER_CONTENT}"
   TPL="${TPL//\{\{ footer \}\}/$FOOTER_CONTENT}"
   TPL="${TPL//\{\{DATE\}\}/$DATE}"
-  
+
   # Conditional logic for empty tree
   if [[ -n "$IS_EMPTY" ]]; then
     # Only keep the {{#if EMPTY}} block, with warning
