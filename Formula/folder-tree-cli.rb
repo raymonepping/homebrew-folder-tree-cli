@@ -1,10 +1,10 @@
 class FolderTreeCli < Formula
   desc "CLI toolkit for visualizing folder structures with markdown reports"
   homepage "https://github.com/raymonepping/folder_tree_cli"
-  url "https://github.com/raymonepping/homebrew-folder-tree-cli/archive/refs/tags/v1.3.2.tar.gz"
-  sha256 "8d8c2aca47dd6bcdcae4add002a49d9665a4a8a2b4f77e32c2af64db2608c4dd"
+  url "https://github.com/raymonepping/homebrew-folder-tree-cli/archive/refs/tags/v1.3.4.tar.gz"
+  sha256 "5a5b4888d77f227584ee2988d1ea8b61fa102d30171bb50bc5200ff5943c5652"
   license "MIT"
-  version "1.3.2"
+  version "1.3.4"
 
   depends_on "bash"
 
